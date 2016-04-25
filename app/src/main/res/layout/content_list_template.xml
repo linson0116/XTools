@@ -12,4 +12,8 @@
     tools:context="com.linson.xtools.app01.activity.ListTemplateActivity"
     tools:showIn="@layout/activity_list_template">
 
+    <ListView
+        android:id="@+id/lv_template"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
 </RelativeLayout>

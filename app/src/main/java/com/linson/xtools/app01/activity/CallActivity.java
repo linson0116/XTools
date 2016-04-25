@@ -3,7 +3,6 @@ package com.linson.xtools.app01.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
@@ -27,8 +26,6 @@ public class CallActivity extends Activity implements View.OnClickListener {
 
     private String number;
     private String content;
-
-    private int REQUEST_CODE_LIST_TEMPLATE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +69,7 @@ public class CallActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.btn_template:
                 Intent intent = new Intent(getApplicationContext(),ListTemplateActivity.class);
-                startActivityForResult(intent,REQUEST_CODE_LIST_TEMPLATE);
+                startActivityForResult(intent, 1);
                 break;
         }
     }
@@ -95,8 +92,12 @@ public class CallActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_LIST_TEMPLATE) {
-            Log.i("log", REQUEST_CODE_LIST_TEMPLATE + "");
+        Log.i("log", "resultCode: " + resultCode);
+        if (resultCode == RESULT_OK) {
+            int number = data.getIntExtra("number", 0);
+            String content = data.getStringExtra("content");
+            et_number.setText(number + "");
+            et_content.setText(content);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

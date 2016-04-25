@@ -3,18 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.linson.xtools.app01.activity.ListTemplateActivity">
     <item
-        android:id="@+id/action_add"
+        android:id="@+id/item_add"
         android:orderInCategory="100"
         android:title="添加"
         app:showAsAction="never" />e
     <item
-        android:id="@+id/action_update"
+        android:id="@+id/item_update"
         android:orderInCategory="100"
         android:title="更新"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_delete"
+        android:id="@+id/item_delete"
         android:orderInCategory="100"
         android:title="删除"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/item_btn_delete"
+        android:orderInCategory="80"
+        android:title="删除"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
 </menu>
