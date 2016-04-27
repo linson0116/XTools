@@ -1,7 +1,9 @@
 package com.linson.xtools.app01.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,21 +24,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListTemplateActivity extends AppCompatActivity {
-    List<PhoneTemplate> list = new ArrayList<PhoneTemplate>();
+    List<PhoneTemplate> phoneTemplateList = new ArrayList<PhoneTemplate>();
     ListView lv = null;
     TemplateAdapter adapter = null;
     PhoneTemplateDao dao = null;
     Menu menu = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_template);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         init();
-
-        //Log.i("log", list.size()+"");
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -50,22 +50,22 @@ public class ListTemplateActivity extends AppCompatActivity {
 
     private void init() {
         dao = new PhoneTemplateDao(this);
+        phoneTemplateList = dao.findAll();
         lv = (ListView) findViewById(R.id.lv_template);
         MenuItem item = (MenuItem) findViewById(R.id.item_btn_delete);
-        //item.setVisible(true);
-
         adapter = new TemplateAdapter();
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                PhoneTemplate template = list.get(position);
+                Log.i("log", "item click");
+                PhoneTemplate template = phoneTemplateList.get(position);
                 //hot 点击+1
                 int hot = template.getHot();
                 hot++;
                 template.setHot(hot);
                 dao.update(template);
-                //传值
+                //传值返回
                 Intent intent = new Intent();
                 intent.putExtra("number", template.getNumber());
                 intent.putExtra("content", template.getContent());
@@ -73,11 +73,30 @@ public class ListTemplateActivity extends AppCompatActivity {
                 finish();
             }
         });
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(ListTemplateActivity.this);
+                dialog.setMessage("删除这一条记录？");
+                dialog.setNegativeButton("删除", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PhoneTemplate p = phoneTemplateList.get(position);
+                        dao.delete(p.getId());
+                        phoneTemplateList.remove(position);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                dialog.show();
+                return true;
+            }
+        });
+
     }
 
     @Override
     protected void onResume() {
-        list = dao.findAll();
+        phoneTemplateList = dao.findAll();
         adapter.notifyDataSetChanged();
         super.onResume();
     }
@@ -99,17 +118,16 @@ public class ListTemplateActivity extends AppCompatActivity {
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.item_add) {
-            Log.i("log", "add");
-            Intent intent = new Intent(getApplicationContext(),AddTemplateActivity.class);
+            Intent intent = new Intent(getApplicationContext(), AddTemplateActivity.class);
             startActivity(intent);
             return true;
         } else if (id == R.id.item_delete) {
-            menu.findItem(R.id.item_btn_delete).setVisible(true);
+            //进入删除状态 多选删除未完成
             return true;
         } else if (id == R.id.item_update) {
             return true;
         } else if (id == R.id.item_btn_delete) {
-            Log.i("log", "onOptionsItemSelected: item_btn_delete");
+            //删除cb选中的条目
         }
 
         return super.onOptionsItemSelected(item);
@@ -119,7 +137,7 @@ public class ListTemplateActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return list.size();
+            return phoneTemplateList.size();
         }
 
         @Override
@@ -135,6 +153,7 @@ public class ListTemplateActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = null;
+
             if (convertView == null) {
                 view = View.inflate(getApplicationContext(), R.layout.list_template_item, null);
             } else {
@@ -144,12 +163,13 @@ public class ListTemplateActivity extends AppCompatActivity {
             TextView tv_number = (TextView) view.findViewById(R.id.tv_number);
             TextView tv_content = (TextView) view.findViewById(R.id.tv_content);
             TextView tv_hot = (TextView) view.findViewById(R.id.tv_hot);
-            PhoneTemplate phoneTemplate = list.get(position);
-            Log.i("log", "getView: " + phoneTemplate);
+            //checkbox 未完成
+            PhoneTemplate phoneTemplate = phoneTemplateList.get(position);
             tv_name.setText(phoneTemplate.getName());
             tv_number.setText(phoneTemplate.getNumber() + "");
             tv_content.setText(phoneTemplate.getContent());
             tv_hot.setText(phoneTemplate.getHot() + "");
+
             return view;
         }
     }

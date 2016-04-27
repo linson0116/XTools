@@ -20,7 +20,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         //id integer primary key autoincrement
         String sql = "create table phone_template(id integer primary key autoincrement," +
-                "name varchar(20),number integer(20),content varchar(20),hot integer(20))";
+                "name varchar(20),number varchar(20),content varchar(20),hot integer(20))";
         db.execSQL(sql);
     }
 

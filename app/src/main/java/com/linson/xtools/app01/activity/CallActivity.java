@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -92,11 +91,10 @@ public class CallActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i("log", "resultCode: " + resultCode);
         if (resultCode == RESULT_OK) {
-            int number = data.getIntExtra("number", 0);
+            String number = data.getStringExtra("number");
             String content = data.getStringExtra("content");
-            et_number.setText(number + "");
+            et_number.setText(number);
             et_content.setText(content);
         }
         super.onActivityResult(requestCode, resultCode, data);

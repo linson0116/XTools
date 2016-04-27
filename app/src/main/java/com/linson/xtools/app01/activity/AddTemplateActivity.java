@@ -29,7 +29,7 @@ public class AddTemplateActivity extends AppCompatActivity {
                 PhoneTemplateDao dao = new PhoneTemplateDao(getApplicationContext());
                 PhoneTemplate phoneTemplate = new PhoneTemplate();
                 phoneTemplate.setName(name);
-                phoneTemplate.setNumber(Integer.parseInt(number));
+                phoneTemplate.setNumber((number));
                 phoneTemplate.setContent(content);
                 dao.add(phoneTemplate);
                 Toast.makeText(AddTemplateActivity.this, "模板添加成功", Toast.LENGTH_SHORT).show();

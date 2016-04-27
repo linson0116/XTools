@@ -6,7 +6,7 @@ package com.linson.xtools.app01.domain;
 public class PhoneTemplate {
     private int id;
     private String name;
-    private int number;
+    private String number;
     private String content;
     private int hot;
 
@@ -26,11 +26,11 @@ public class PhoneTemplate {
         this.name = name;
     }
 
-    public int getNumber() {
+    public String getNumber() {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(String number) {
         this.number = number;
     }
 

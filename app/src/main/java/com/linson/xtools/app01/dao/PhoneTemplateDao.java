@@ -54,12 +54,12 @@ public class PhoneTemplateDao {
     public List findAll() {
         List list = new ArrayList();
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.query("phone_template", null, null, null, null, null, null);
+        Cursor cursor = db.query("phone_template", null, null, null, null, null, "hot desc");
         while (cursor.moveToNext()) {
             PhoneTemplate template = new PhoneTemplate();
             template.setId(cursor.getInt(cursor.getColumnIndex("id")));
             template.setName(cursor.getString(cursor.getColumnIndex("name")));
-            template.setNumber(cursor.getInt(cursor.getColumnIndex("number")));
+            template.setNumber(cursor.getString(cursor.getColumnIndex("number")));
             template.setContent(cursor.getString(cursor.getColumnIndex("content")));
             template.setHot(cursor.getInt(cursor.getColumnIndex("hot")));
             list.add(template);
