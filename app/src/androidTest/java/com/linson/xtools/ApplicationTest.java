@@ -8,6 +8,10 @@ import android.test.ApplicationTestCase;
  */
 public class ApplicationTest extends ApplicationTestCase<Application> {
     public ApplicationTest() {
+
         super(Application.class);
+        String[] ars = new String[]{"1", "2", "3"};
+
+//        XmlUtils.createSmsInfo();
     }
 }
