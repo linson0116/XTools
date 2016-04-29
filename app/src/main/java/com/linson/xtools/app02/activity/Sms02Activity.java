@@ -32,7 +32,7 @@ public class Sms02Activity extends AppCompatActivity {
 
         File file = new File(getFilesDir(), "smss.xml");
         if (!file.exists()) {
-            XmlUtils.createSmsInfo(file, new String[]{"test", "test", "test"});
+            XmlUtils.createSmsInfo(file, new String[]{"名称", "号码", "内容"});
         }
         try {
             InputStream is = new FileInputStream(file);

@@ -45,13 +45,16 @@
         android:layout_rowWeight="1" />
 
     <Button
+        android:id="@+id/btn_7"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1" />
 
     <Button
+        android:id="@+id/btn_8"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1" />
     <Button
+        android:id="@+id/btn_9"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1" />
 

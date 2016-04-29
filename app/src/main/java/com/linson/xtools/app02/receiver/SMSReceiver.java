@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
 
 import com.linson.xtools.app02.utils.XmlUtils;
+import com.linson.xtools.utils.Lu;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -17,10 +17,9 @@ import java.util.Date;
  * Created by Administrator on 2016/4/27.
  */
 public class SMSReceiver extends BroadcastReceiver {
-    private static final String TAG = "log";
-
     @Override
     public void onReceive(Context context, Intent intent) {
+        Lu.i("接收到广播");
         String format = intent.getStringExtra("format");
         Bundle bundle = intent.getExtras();
         Object[] pdus = (Object[]) bundle.get("pdus");
@@ -36,11 +35,12 @@ public class SMSReceiver extends BroadcastReceiver {
             String[] arr = new String[]{number, body, date};
             if (file.exists()) {
                 XmlUtils.addSmsInfo(file, arr);
+                Lu.i("插入XML短信");
             } else {
                 XmlUtils.createSmsInfo(file, arr);
+                Lu.i("创建XML短信");
             }
-            Log.i(TAG, "onReceive: body=" + body);
-            Log.i(TAG, "onReceive: format=" + format);
+
         }
     }
 }
