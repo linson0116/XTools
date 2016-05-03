@@ -23,7 +23,6 @@ public class Sms02Activity extends AppCompatActivity {
     SmsAdapter adapter;
     List<SmsInfo> smsList = new ArrayList<SmsInfo>();
     private ListView lv;
-    private String TAG = "log";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,13 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.linson.xtools.app01.activity.CallActivity;
 import com.linson.xtools.app02.activity.Sms02Activity;
 import com.linson.xtools.app09.activity.Test09Activity;
+import com.linson.xtools.utils.Lu;
 
 public class MainActivity extends Activity implements View.OnClickListener{
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -38,7 +38,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("log", "onCreate.");
+        Lu.i("软件启动 onCreate");
         init();
     }
 
@@ -57,17 +57,17 @@ public class MainActivity extends Activity implements View.OnClickListener{
         Intent intent;
         switch (v.getId()) {
             case R.id.btn_1:
-                Log.i("log", "btn_1");
+                Lu.i("点击按钮1");
                 intent = new Intent(getApplicationContext(), CallActivity.class);
                 startActivity(intent);
                 break;
             case R.id.btn_2:
-                Log.i("log", "btn_2");
+                Lu.i("点击按钮2");
                 intent = new Intent(getApplicationContext(), Sms02Activity.class);
                 startActivity(intent);
                 break;
             case R.id.btn_9:
-                Log.i("log", "btn_9");
+                Lu.i("点击按钮9");
                 intent = new Intent(getApplicationContext(), Test09Activity.class);
                 startActivity(intent);
                 break;

@@ -4,11 +4,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.linson.xtools.R;
 import com.linson.xtools.utils.FileUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -24,12 +24,9 @@ public class Test09Activity extends AppCompatActivity {
         btn_t1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String content = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ").format(new Date());
-                try {
-                    boolean flag = FileUtils.writeLog(content + new String("你".getBytes("utf-8")));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ").format(new Date());
+                boolean flag = FileUtils.writeLog(date + "测试");
+                Toast.makeText(Test09Activity.this, "click：" + date + "测试", Toast.LENGTH_SHORT).show();
             }
         });
     }

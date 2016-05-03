@@ -1,12 +1,14 @@
 package com.linson.xtools.utils;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -16,9 +18,8 @@ import java.util.Date;
 public class FileUtils {
     final static String lineSeparator = System.getProperty("line.separator");
 
-    public static void write(File file, String content) {
+    public static boolean write(File file, String content) {
         StringBuffer sb = new StringBuffer();
-        ;
         if (file.exists()) {
             long length = file.length();
             if (length > 1024) {
@@ -41,17 +42,25 @@ public class FileUtils {
             }
         } else {
             Lu.v("文件不存在");
+            return false;
         }
         try {
-            FileWriter writer = new FileWriter(file);
-            writer.write(content + lineSeparator);
-            writer.write(new String(sb.toString().getBytes("utf-8")));
-            writer.close();
+            //解决乱码
+            Log.i("log", content);
+//            OutputStream os = new FileOutputStream(file);
+//            os.write((content + lineSeparator).getBytes("utf-8"));
+//            os.write(sb.toString().getBytes());
+//            os.close();
+
+            OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            osw.write(content + lineSeparator);
+            osw.write(sb.toString());
+            osw.flush();
+            osw.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
+        return true;
     }
 
     public static boolean writeLog(String content) {
@@ -64,11 +73,14 @@ public class FileUtils {
         if (getExternalStorage() == null)
             return false;
         File file = new File(getExternalStorage(), fileName);
-        if (file != null) {
-            write(file, content);
-            return true;
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return false;
+        return write(file, content);
     }
 
     public static File getExternalStorage() {

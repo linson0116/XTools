@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.linson.xtools.app02.utils.XmlUtils;
 import com.linson.xtools.utils.Lu;
@@ -19,7 +21,8 @@ import java.util.Date;
 public class SMSReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Lu.i("接收到广播");
+        Lu.i("接收到广播 " + intent.getAction());
+        Toast.makeText(context, "接收到广播", Toast.LENGTH_SHORT).show();
         String format = intent.getStringExtra("format");
         Bundle bundle = intent.getExtras();
         Object[] pdus = (Object[]) bundle.get("pdus");
@@ -28,19 +31,28 @@ public class SMSReceiver extends BroadcastReceiver {
             messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i], format);
         }
         File file = new File(context.getFilesDir(), "smss.xml");
+        //多条短信的合并
+        String number = "";
+        String date = "";
+        StringBuffer sbBody = new StringBuffer();
         for (SmsMessage message : messages) {
-            String number = message.getOriginatingAddress();
+            if (TextUtils.isEmpty(number)) {
+                number = message.getOriginatingAddress();
+            }
+            if (TextUtils.isEmpty(date)) {
+                date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+            }
             String body = message.getMessageBody();
-            String date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
-            String[] arr = new String[]{number, body, date};
+            sbBody.append(body);
+            String[] arr = new String[]{number, sbBody.toString(), date};
             if (file.exists()) {
                 XmlUtils.addSmsInfo(file, arr);
-                Lu.i("插入XML短信");
+                Lu.i("插入XML短信 " + arr[0] + " " + arr[1]);
             } else {
                 XmlUtils.createSmsInfo(file, arr);
                 Lu.i("创建XML短信");
             }
-
         }
     }
+
 }
