@@ -37,7 +37,9 @@
     <Button
         android:id="@+id/btn_5"
         android:layout_columnWeight="1"
-        android:layout_rowWeight="1" />
+        android:layout_rowWeight="1"
+        android:text="登录"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/btn_6"
@@ -57,6 +59,7 @@
         android:id="@+id/btn_9"
         android:layout_columnWeight="1"
         android:layout_rowWeight="1"
-        android:text="测试" />
+        android:text="测试"
+        android:textSize="20sp" />
 
 </GridLayout>

@@ -1,7 +1,6 @@
 package com.linson.xtools.utils;
 
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,7 +45,7 @@ public class FileUtils {
         }
         try {
             //解决乱码
-            Log.i("log", content);
+            //Log.i("log", content);
 //            OutputStream os = new FileOutputStream(file);
 //            os.write((content + lineSeparator).getBytes("utf-8"));
 //            os.write(sb.toString().getBytes());

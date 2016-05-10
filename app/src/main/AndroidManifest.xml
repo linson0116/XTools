@@ -7,9 +7,10 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!--<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-
+    <!-- <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/> -->
     <application
         android:allowBackup="true"
         android:icon="@drawable/bird8"
@@ -43,7 +44,9 @@
         </receiver>
 
         <activity android:name=".app02.activity.Sms02Activity" />
-        <activity android:name=".app09.activity.Test09Activity"></activity>
+        <activity android:name=".app09.activity.Test09Activity" />
+        <activity android:name=".app05.activity.Register05Activity" />
+        <activity android:name=".app05.activity.Login05Activity"></activity>
     </application>
 
 </manifest>
