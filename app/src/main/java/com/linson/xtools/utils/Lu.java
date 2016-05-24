@@ -2,6 +2,8 @@ package com.linson.xtools.utils;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,6 +35,15 @@ public class Lu {
         if (current_level >= current_info) {
             Log.i(TAG, getDateTime() + content);
             FileUtils.writeLog(getDateTime() + content);
+            //
+            Gson gson = new Gson();
+            XtoolsLog xtoolsLog = new XtoolsLog();
+            String strDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            xtoolsLog.setDate(strDate);
+            xtoolsLog.setContent(content);
+            String data = gson.toJson(xtoolsLog);
+            //
+            NetUtils.sendJson(data, Constant.LOG_PATH);
         }
     }
 
@@ -49,6 +60,6 @@ public class Lu {
     }
 
     private static String getDateTime() {
-        return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ").format(new Date());
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss ").format(new Date());
     }
 }

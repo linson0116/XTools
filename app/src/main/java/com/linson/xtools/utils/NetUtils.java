@@ -1,8 +1,9 @@
-package com.linson.xtools.app05.utils;
+package com.linson.xtools.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -10,7 +11,6 @@ import com.lidroid.xutils.http.RequestParams;
 import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
-import com.linson.xtools.utils.Lu;
 
 /**
  * Created by Administrator on 2016/5/3.
@@ -21,16 +21,16 @@ public class NetUtils {
         HttpUtils httpUtils = new HttpUtils();
         RequestParams params = new RequestParams();
         params.addBodyParameter("data", data);
+        //Lu.i(params.getCharset());
         httpUtils.send(HttpRequest.HttpMethod.POST, path, params
                 , new RequestCallBack<String>() {
                     @Override
                     public void onSuccess(ResponseInfo<String> responseInfo) {
-                        Lu.i("onSuccess");
+                        Log.i("log", "onSuccess " + responseInfo.result.toString());
                     }
-
                     @Override
                     public void onFailure(HttpException e, String s) {
-                        Lu.i("onFailure");
+                        Log.i("log", "onFailure " + s);
                         e.printStackTrace();
                     }
                 });

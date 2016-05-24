@@ -13,9 +13,9 @@ import com.lidroid.xutils.http.ResponseInfo;
 import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.linson.xtools.R;
 import com.linson.xtools.app05.domain.User;
-import com.linson.xtools.app05.utils.NetUtils;
-import com.linson.xtools.app05.utils.ReturnMessage;
 import com.linson.xtools.utils.Lu;
+import com.linson.xtools.utils.NetUtils;
+import com.linson.xtools.utils.ReturnMessage;
 
 public class Register05Activity extends AppCompatActivity {
 

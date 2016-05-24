@@ -1,4 +1,4 @@
-package com.linson.xtools.app05.utils;
+package com.linson.xtools.utils;
 
 /**
  * Created by Administrator on 2016/5/6.
@@ -6,4 +6,5 @@ package com.linson.xtools.app05.utils;
 public class ReturnMessage {
     public static final String REGIST_ERROR = "REGIST_ERROR";
     public static final String REGIST_OK = "OK";
+    public static final String RETURN_OK = "RETURN_OK";
 }

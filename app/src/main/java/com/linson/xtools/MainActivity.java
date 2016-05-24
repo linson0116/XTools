@@ -77,22 +77,22 @@ public class MainActivity extends Activity implements View.OnClickListener{
         Intent intent;
         switch (v.getId()) {
             case R.id.btn_1:
-                Lu.i("点击按钮1");
+                Lu.i("点击按钮1 短信电话");
                 intent = new Intent(getApplicationContext(), CallActivity.class);
                 startActivity(intent);
                 break;
             case R.id.btn_2:
-                Lu.i("点击按钮2");
+                Lu.i("点击按钮2 短信记录");
                 intent = new Intent(getApplicationContext(), Sms02Activity.class);
                 startActivity(intent);
                 break;
             case R.id.btn_5:
-                Lu.i("点击按钮5");
+                Lu.i("点击按钮5 登录");
                 intent = new Intent(getApplicationContext(), Login05Activity.class);
                 startActivity(intent);
                 break;
             case R.id.btn_9:
-                Lu.i("点击按钮9");
+                Lu.i("点击按钮9 测试");
                 intent = new Intent(getApplicationContext(), Test09Activity.class);
                 startActivity(intent);
                 break;
