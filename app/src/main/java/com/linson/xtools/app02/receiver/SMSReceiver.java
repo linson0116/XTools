@@ -35,24 +35,25 @@ public class SMSReceiver extends BroadcastReceiver {
         String number = "";
         String date = "";
         StringBuffer sbBody = new StringBuffer();
+        String[] arr = new String[3];
         for (SmsMessage message : messages) {
             if (TextUtils.isEmpty(number)) {
                 number = message.getOriginatingAddress();
             }
             if (TextUtils.isEmpty(date)) {
-                date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+                date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             }
             String body = message.getMessageBody();
             sbBody.append(body);
-            String[] arr = new String[]{number, sbBody.toString(), date};
-            if (file.exists()) {
-                XmlUtils.addSmsInfo(file, arr);
-                Lu.i("插入XML短信 " + arr[0] + " " + arr[1]);
-            } else {
-                XmlUtils.createSmsInfo(file, arr);
-                Lu.i("创建XML短信");
-            }
+            arr = new String[]{number, sbBody.toString(), date};
+        }
+        Lu.i(arr[0] + " " + arr[1] + " " + arr[2]);
+        if (file.exists()) {
+            XmlUtils.addSmsInfo(file, arr);
+            Lu.i("插入XML短信 " + arr[0] + " " + arr[1]);
+        } else {
+            XmlUtils.createSmsInfo(file, arr);
+            Lu.i("创建XML短信");
         }
     }
-
 }

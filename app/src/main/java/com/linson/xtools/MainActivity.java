@@ -2,7 +2,10 @@ package com.linson.xtools;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -11,6 +14,7 @@ import android.widget.Button;
 
 import com.linson.xtools.app01.activity.CallActivity;
 import com.linson.xtools.app02.activity.Sms02Activity;
+import com.linson.xtools.app03.activity.Camera03Activity;
 import com.linson.xtools.app05.activity.Login05Activity;
 import com.linson.xtools.app09.activity.Test09Activity;
 import com.linson.xtools.utils.Lu;
@@ -25,6 +29,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private Button btn_3;
     private Button btn_4;
     private Button btn_5;
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            btn_5.setText("已登录");
+        }
+    };
     private Button btn_6;
     private Button btn_7;
     private Button btn_8;
@@ -70,6 +80,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btn_9.setOnClickListener(this);
 
         verifyStoragePermissions(this);
+        IntentFilter intentFilter = new IntentFilter(Login05Activity.updateBtn_5);
+        registerReceiver(receiver, intentFilter);
     }
 
     @Override
@@ -86,9 +98,15 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 intent = new Intent(getApplicationContext(), Sms02Activity.class);
                 startActivity(intent);
                 break;
+            case R.id.btn_3:
+                Lu.i("点击按钮3 拍照上传");
+                intent = new Intent(getApplicationContext(), Camera03Activity.class);
+                startActivity(intent);
+                break;
             case R.id.btn_5:
                 Lu.i("点击按钮5 登录");
                 intent = new Intent(getApplicationContext(), Login05Activity.class);
+
                 startActivity(intent);
                 break;
             case R.id.btn_9:
@@ -99,4 +117,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
+    }
 }

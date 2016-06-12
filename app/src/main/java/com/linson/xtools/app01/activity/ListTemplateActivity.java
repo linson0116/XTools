@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 import com.linson.xtools.R;
 import com.linson.xtools.app01.dao.PhoneTemplateDao;
 import com.linson.xtools.app01.domain.PhoneTemplate;
+import com.linson.xtools.utils.Lu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ public class ListTemplateActivity extends AppCompatActivity {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i("log", "item click");
+
                 PhoneTemplate template = phoneTemplateList.get(position);
                 //hot 点击+1
                 int hot = template.getHot();
@@ -71,6 +71,7 @@ public class ListTemplateActivity extends AppCompatActivity {
                 intent.putExtra("content", template.getContent());
                 setResult(RESULT_OK, intent);
                 finish();
+                Lu.i("click item = " + template.getName() + " " + template.getNumber() + " " + template.getContent());
             }
         });
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {

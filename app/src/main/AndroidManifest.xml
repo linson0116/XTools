@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.linson.xtools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -38,7 +39,7 @@
         <receiver
             android:name=".app02.receiver.SMSReceiver"
             android:enabled="true">
-            <intent-filter>
+            <intent-filter android:priority="1000">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
@@ -46,7 +47,8 @@
         <activity android:name=".app02.activity.Sms02Activity" />
         <activity android:name=".app09.activity.Test09Activity" />
         <activity android:name=".app05.activity.Register05Activity" />
-        <activity android:name=".app05.activity.Login05Activity"></activity>
+        <activity android:name=".app05.activity.Login05Activity" />
+        <activity android:name=".app03.activity.Camera03Activity"></activity>
     </application>
 
 </manifest>

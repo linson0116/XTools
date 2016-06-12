@@ -43,7 +43,7 @@ public class Lu {
             xtoolsLog.setContent(content);
             String data = gson.toJson(xtoolsLog);
             //
-            NetUtils.sendJson(data, Constant.LOG_PATH);
+            //NetUtils.sendJson(data, Constant.LOG_PATH);
         }
     }
 

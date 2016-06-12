@@ -1,8 +1,10 @@
 package com.linson.xtools.utils;
 
+import android.graphics.Bitmap;
 import android.os.Environment;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -88,5 +90,28 @@ public class FileUtils {
             file = Environment.getExternalStorageDirectory();
         }
         return file;
+    }
+
+    public static void compressBmpToFile(Bitmap bmp, File file) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int options = 80;//个人喜欢从80开始,
+        bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
+        while (baos.toByteArray().length / 1024 > 500) {
+            baos.reset();
+            //options -= 10;
+            options = (int) (options * 0.8);
+            bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
+            if (options <= 9) {
+                break;
+            }
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(baos.toByteArray());
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
