@@ -36,19 +36,28 @@
             android:name=".app01.activity.AddTemplateActivity"
             android:label="添加模板" />
 
-        <receiver
-            android:name=".app02.receiver.SMSReceiver"
-            android:enabled="true">
+        <receiver android:name=".app02.receiver.SMSReceiver">
             <intent-filter android:priority="1000">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
+        <!--频繁的广播需要动态注册-->
+        <!--<receiver android:name=".app04.receiver.ScreenReceiver">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.SCREEN_OFF"></action>-->
+        <!--<action android:name="android.intent.action.SCREEN_ON"></action>-->
+        <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <service android:name=".app02.service.SMSService"></service>
 
         <activity android:name=".app02.activity.Sms02Activity" />
         <activity android:name=".app09.activity.Test09Activity" />
         <activity android:name=".app05.activity.Register05Activity" />
         <activity android:name=".app05.activity.Login05Activity" />
-        <activity android:name=".app03.activity.Camera03Activity"></activity>
+        <activity android:name=".app03.activity.Camera03Activity" />
+        <activity android:name=".app03.activity.Camera03FileListActivity" />
+        <activity android:name=".app04.activity.Screen04Activity"></activity>
     </application>
 
 </manifest>

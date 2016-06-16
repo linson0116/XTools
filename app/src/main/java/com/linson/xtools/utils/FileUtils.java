@@ -1,6 +1,7 @@
 package com.linson.xtools.utils;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 
 import java.io.BufferedReader;
@@ -19,11 +20,16 @@ import java.util.Date;
 public class FileUtils {
     final static String lineSeparator = System.getProperty("line.separator");
 
+    public static Bitmap getBmp(File file) {
+        Bitmap bitmap = null;
+        bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        return bitmap;
+    }
     public static boolean write(File file, String content) {
         StringBuffer sb = new StringBuffer();
         if (file.exists()) {
             long length = file.length();
-            if (length > 1024) {
+            if (length > 1024 * 1024) {
                 String pre = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 File newFile = new File(file.getParent(), pre + file.getName());
                 file.renameTo(newFile);

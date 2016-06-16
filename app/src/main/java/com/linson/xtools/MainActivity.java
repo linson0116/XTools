@@ -1,29 +1,28 @@
 package com.linson.xtools;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
 
 import com.linson.xtools.app01.activity.CallActivity;
 import com.linson.xtools.app02.activity.Sms02Activity;
 import com.linson.xtools.app03.activity.Camera03Activity;
+import com.linson.xtools.app04.activity.Screen04Activity;
 import com.linson.xtools.app05.activity.Login05Activity;
 import com.linson.xtools.app09.activity.Test09Activity;
 import com.linson.xtools.utils.Lu;
+import com.linson.xtools.utils.PermissionUtils;
 
 public class MainActivity extends Activity implements View.OnClickListener{
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    //    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+//    private static String[] PERMISSIONS_STORAGE = {
+//            Manifest.permission.READ_EXTERNAL_STORAGE,
+//            Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private Button btn_1;
     private Button btn_2;
     private Button btn_3;
@@ -40,16 +39,16 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private Button btn_8;
     private Button btn_9;
 
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE);
-        }
-    }
+//    public static void verifyStoragePermissions(Activity activity) {
+//        // Check if we have write permission
+//        int permission = ActivityCompat.checkSelfPermission(activity,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        if (permission != PackageManager.PERMISSION_GRANTED) {
+//            // We don't have permission so prompt the user
+//            ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,
+//                    REQUEST_EXTERNAL_STORAGE);
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,11 +78,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btn_9 = (Button) findViewById(R.id.btn_9);
         btn_9.setOnClickListener(this);
 
-        verifyStoragePermissions(this);
+        //verifyStoragePermissions(this);
+        PermissionUtils.verifyStoragePermissions(this);
         IntentFilter intentFilter = new IntentFilter(Login05Activity.updateBtn_5);
         registerReceiver(receiver, intentFilter);
     }
-
     @Override
     public void onClick(View v) {
         Intent intent;
@@ -103,10 +102,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 intent = new Intent(getApplicationContext(), Camera03Activity.class);
                 startActivity(intent);
                 break;
+            case R.id.btn_4:
+                Lu.i("点击按钮4 屏幕解锁");
+                intent = new Intent(getApplicationContext(), Screen04Activity.class);
+                startActivity(intent);
+                break;
             case R.id.btn_5:
                 Lu.i("点击按钮5 登录");
                 intent = new Intent(getApplicationContext(), Login05Activity.class);
-
                 startActivity(intent);
                 break;
             case R.id.btn_9:
@@ -116,7 +119,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 break;
         }
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

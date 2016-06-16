@@ -44,6 +44,7 @@ public class NetUtils {
                     public void onSuccess(ResponseInfo<String> responseInfo) {
                         Log.i("log", "onSuccess " + responseInfo.result.toString());
                     }
+
                     @Override
                     public void onFailure(HttpException e, String s) {
                         Log.i("log", "onFailure " + s + " e=" + e.getMessage());
@@ -84,10 +85,6 @@ public class NetUtils {
     }
 
     public static void uploadByAsyncHttpClient(File file, String url) {
-        //String filePath = fileUri.getPath();
-        //filePath = "/sdcard/aaa/1.jpg";
-        //final String url = "http://192.168.8.19:8080/XToolsServer/ServletUpFile";
-        //final File file = new File(filePath);
         // 先判断文件是否存在
         if (file.exists() && file.length() > 0) {
             // 1. 创建AsyncHttpClient对象
@@ -97,8 +94,6 @@ public class NetUtils {
             try {
                 // 其实这里的异常不可能出现，因为上边已经做了判断
                 params.put("profile_picture", file);
-                params.put("aaa", "bbb");
-                //params.add("a1","b1");
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -108,20 +103,37 @@ public class NetUtils {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers,
                                       byte[] responseBody) {
-                    //Toast.makeText(MainActivity.this, "上传成功！", Toast.LENGTH_LONG).show();
                 }
 
                 // 上传失败时回调的方法
                 @Override
                 public void onFailure(int statusCode, Header[] headers,
                                       byte[] responseBody, Throwable error) {
-//                    Toast.makeText(MainActivity.this, "上传失败！错误码：" + statusCode,
-//                            Toast.LENGTH_LONG).show();
                 }
 
             });
         } else {
-            //Toast.makeText(this, "文件不存在！", Toast.LENGTH_LONG).show();
+            Lu.i("文件不存在，无法上传");
+        }
+    }
+
+    public static void uploadByAsyncHttpClient(File file, String url, AsyncHttpResponseHandler handler) {
+        // 先判断文件是否存在
+        if (file.exists() && file.length() > 0) {
+            // 1. 创建AsyncHttpClient对象
+            AsyncHttpClient client = new AsyncHttpClient();
+            // 2.设置参数体
+            com.loopj.android.http.RequestParams params = new com.loopj.android.http.RequestParams();
+            try {
+                // 其实这里的异常不可能出现，因为上边已经做了判断
+                params.put("profile_picture", file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            // 3.上传文件
+            client.post(url, params, handler);
+        } else {
+            Lu.i("文件不存在，无法上传");
         }
     }
 }

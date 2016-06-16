@@ -5,33 +5,37 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.linson.xtools.R;
 import com.linson.xtools.utils.Constant;
+import com.linson.xtools.utils.DateUtils;
 import com.linson.xtools.utils.FileUtils;
 import com.linson.xtools.utils.Lu;
 import com.linson.xtools.utils.NetUtils;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.apache.http.Header;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class Camera03Activity extends AppCompatActivity {
 
-    File imageFile = null;
+    private File imageFile = null;
+    private File fileDir = null;
     private Button btn_camera;
+    private Button btn_fileList;
+    private Button btn_clearFile;
+    private Button btn_uploadFiles;
     private int cameraRequestCode = 100;
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -69,18 +73,75 @@ public class Camera03Activity extends AppCompatActivity {
 
     private void init() {
         verifyStoragePermissions(this);
+        fileDir = getExternalFilesDir("");
         btn_camera = (Button) findViewById(R.id.btn_camera);
+        btn_fileList = (Button) findViewById(R.id.btn_fileList);
+        btn_clearFile = (Button) findViewById(R.id.btn_clearFile);
+        btn_uploadFiles = (Button) findViewById(R.id.btn_uploadFiles);
+
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fileName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".jpg";
-                File fileDir = getExternalFilesDir("");
-                Log.i("log", "fileDir: " + fileDir.getAbsolutePath());
+                String fileName = DateUtils.getDateStr("yyMMdd_HHmmss") + ".jpg";
+                ///storage/emulated/0/Android/data/com.linson.xtools/files/
                 imageFile = new File(fileDir, fileName);
-                Lu.i(imageFile.getName());
                 openCamera(imageFile, cameraRequestCode);
             }
         });
+        btn_fileList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Camera03Activity.this, Camera03FileListActivity.class);
+                startActivity(intent);
+            }
+        });
+        btn_clearFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fileDir != null && fileDir.isDirectory()) {
+                    File[] files = fileDir.listFiles();
+                    for (int i = 0; i < files.length; i++) {
+                        if (files[i].exists()) {
+                            files[i].delete();
+                        }
+                    }
+                    Toast.makeText(Camera03Activity.this, "文件已清空", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        btn_uploadFiles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fileDir != null && fileDir.isDirectory()) {
+                    final File[] files = fileDir.listFiles();
+                    int num = files.length;
+                    for (int i = 0; i < files.length; i++) {
+                        if (files[i].exists()) {
+                            Bitmap bmp = FileUtils.getBmp(files[i]);
+                            final File compressFile = new File(fileDir, "C_" + files[i].getName());
+                            FileUtils.compressBmpToFile(bmp, compressFile);
+                            files[i].delete();
+                            //上传图片
+                            NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int i, Header[] headers, byte[] bytes) {
+                                    Lu.i("文件上传成功");
+                                    compressFile.delete();
+                                }
+
+                                @Override
+                                public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
+                                    Lu.i("文件上传失败");
+                                }
+                            });
+                        }
+                    }
+                    Toast.makeText(Camera03Activity.this, num + "个文件已上传", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
     }
 
     public void openCamera(File imageFile, int cameraRequestCode) {
@@ -97,22 +158,33 @@ public class Camera03Activity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == cameraRequestCode) {
-            if (NetUtils.isNetworkAvailable(this)) {
-                //String filePath = imageFile.getAbsolutePath();
-                String fileName = imageFile.getName();
-                File fileDir = imageFile.getParentFile();
-                String compressFileName = "C_" + fileName;
-                File compressFile = new File(fileDir, compressFileName);
-                Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-                FileUtils.compressBmpToFile(bitmap, compressFile);
-                Lu.i(compressFile.getAbsolutePath());
-                NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH);
-                Toast.makeText(Camera03Activity.this, "网络可用,图片上传", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(Camera03Activity.this, "网络不可用，图片无法上传", Toast.LENGTH_SHORT).show();
-            }
-        }
+//        if (requestCode == cameraRequestCode) {
+//                if (NetUtils.isNetworkAvailable(this)) {
+//                    //String filePath = imageFile.getAbsolutePath();
+//                    String fileName = imageFile.getName();
+//                    File fileDir = imageFile.getParentFile();
+//                    String compressFileName = "C_" + fileName;
+//                    File compressFile = new File(fileDir, compressFileName);
+//                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+//                    FileUtils.compressBmpToFile(bitmap, compressFile);
+//                    Lu.i(compressFile.getAbsolutePath());
+//                    //上传图片
+//                    //NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH);
+//                    File dir = imageFile.getParentFile();
+//                    Lu.i("dir " +dir.getAbsolutePath());
+//                    if (dir.isDirectory()) {
+//
+//                        File[] files = dir.listFiles();
+//                        for (int i = 0; i < files.length; i++) {
+//                            Lu.i(files[i].getAbsolutePath());
+//                        }
+//
+//                    }
+//                    Toast.makeText(Camera03Activity.this, "网络可用,图片上传", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(Camera03Activity.this, "网络不可用，图片无法上传", Toast.LENGTH_SHORT).show();
+//                }
+//        }
     }
 
 

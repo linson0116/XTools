@@ -35,15 +35,21 @@ public class Lu {
         if (current_level >= current_info) {
             Log.i(TAG, getDateTime() + content);
             FileUtils.writeLog(getDateTime() + content);
-            //
+        }
+    }
+
+    public static void i(String content, boolean netFlag) {
+        if (netFlag == true) {
+            i(content);
             Gson gson = new Gson();
             XtoolsLog xtoolsLog = new XtoolsLog();
-            String strDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            String strDate = DateUtils.getDateStr("yyyy-MM-dd HH:mm:ss");
             xtoolsLog.setDate(strDate);
             xtoolsLog.setContent(content);
             String data = gson.toJson(xtoolsLog);
-            //
-            //NetUtils.sendJson(data, Constant.LOG_PATH);
+            NetUtils.sendJson(data, Constant.LOG_PATH);
+        } else {
+            i(content);
         }
     }
 
