@@ -15,11 +15,8 @@ import java.util.List;
  * Created by Administrator on 2016/4/25.
  */
 public class PhoneTemplateDao {
-    //private Context context;
     MySQLiteOpenHelper helper;
-
     public PhoneTemplateDao(Context context) {
-        //this.context = context;
         helper = new MySQLiteOpenHelper(context);
     }
 

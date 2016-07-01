@@ -13,10 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.linson.xtools.R;
+import com.linson.xtools.app03.dao.ImageInfoDao;
+import com.linson.xtools.app03.domain.ImageInfo;
 import com.linson.xtools.utils.Constant;
 import com.linson.xtools.utils.DateUtils;
 import com.linson.xtools.utils.FileUtils;
@@ -38,8 +41,12 @@ public class Camera03Activity extends AppCompatActivity {
     private Button btn_fileList;
     private Button btn_clearFile;
     private Button btn_uploadFiles;
+    private EditText et_comments;
     private Spinner sp;
     private int cameraRequestCode = 100;
+
+    private String type;
+    private String comments;
 
     public static void verifyStoragePermissions(Activity activity) {
         List permissionList = new ArrayList();
@@ -81,6 +88,7 @@ public class Camera03Activity extends AppCompatActivity {
         btn_clearFile = (Button) findViewById(R.id.btn_clearFile);
         btn_uploadFiles = (Button) findViewById(R.id.btn_uploadFiles);
         sp = (Spinner) findViewById(R.id.sp);
+        et_comments = (EditText) findViewById(R.id.et_comments);
 
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,13 +110,27 @@ public class Camera03Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (fileDir != null && fileDir.isDirectory()) {
-                    File[] files = fileDir.listFiles();
+                    ImageInfoDao dao = new ImageInfoDao(Camera03Activity.this);
+                    List<ImageInfo> imageList = dao.findAll();
+                    int num = imageList.size();
+                    int deleteNum = 0;
+                    for (int i = 0; i < num; i++) {
+                        ImageInfo imageInfo = imageList.get(i);
+                        String fileName = imageInfo.getFileName();
+                        File file = new File(fileDir, fileName);
+                        if (file.exists()) {
+                            file.delete();
+                            dao.delete(imageInfo.getId());
+                            deleteNum++;
+                        }
+                    }
+                    /*File[] files = fileDir.listFiles();
                     for (int i = 0; i < files.length; i++) {
                         if (files[i].exists()) {
                             files[i].delete();
                         }
-                    }
-                    Toast.makeText(Camera03Activity.this, "文件已清空", Toast.LENGTH_SHORT).show();
+                    }*/
+                    Toast.makeText(Camera03Activity.this, "清空了" + deleteNum + "个文件", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -117,19 +139,25 @@ public class Camera03Activity extends AppCompatActivity {
             public void onClick(View v) {
                 if (fileDir != null && fileDir.isDirectory()) {
                     final File[] files = fileDir.listFiles();
-                    int num = files.length;
-                    for (int i = 0; i < files.length; i++) {
-                        if (files[i].exists()) {
-                            Bitmap bmp = FileUtils.getBmp(files[i]);
-                            final File compressFile = new File(fileDir, "C_" + files[i].getName());
-                            FileUtils.compressBmpToFile(bmp, compressFile);
-                            files[i].delete();
+
+                    final ImageInfoDao dao = new ImageInfoDao(Camera03Activity.this);
+                    List<ImageInfo> imageLists = dao.findAll();
+                    int num = imageLists.size();
+                    for (int i = 0; i < num; i++) {
+                        final ImageInfo imageInfo = imageLists.get(i);
+                        final File file = new File(fileDir, imageInfo.getFileName());
+                        if (file.exists()) {
+//                            Bitmap bmp = FileUtils.getBmp(files[i]);
+//                            final File compressFile = new File(fileDir, "C_" + files[i].getName());
+//                            FileUtils.compressBmpToFile(bmp, compressFile);
+//                            files[i].delete();
                             //上传图片
-                            NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
+                            NetUtils.uploadByAsyncHttpClient(file, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int i, Header[] headers, byte[] bytes) {
                                     Lu.i("文件上传成功");
-                                    compressFile.delete();
+                                    file.delete();
+                                    dao.delete(imageInfo.getId());
                                 }
 
                                 @Override
@@ -148,7 +176,7 @@ public class Camera03Activity extends AppCompatActivity {
                 }
             }
         });
-        String[] mItems = new String[]{"请选择类别", "中兴SDH相关", "华为SDH相关", "电源及UPS相关"};
+        String[] mItems = new String[]{"请选择类别", "中兴SDH相关", "华为SDH相关", "电源及UPS相关", "文化共享", "其他"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, mItems);
         sp.setAdapter(adapter);
     }
@@ -167,34 +195,28 @@ public class Camera03Activity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == cameraRequestCode) {
-//                if (NetUtils.isNetworkAvailable(this)) {
-//                    //String filePath = imageFile.getAbsolutePath();
-//                    String fileName = imageFile.getName();
-//                    File fileDir = imageFile.getParentFile();
-//                    String compressFileName = "C_" + fileName;
-//                    File compressFile = new File(fileDir, compressFileName);
-//                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-//                    FileUtils.compressBmpToFile(bitmap, compressFile);
-//                    Lu.i(compressFile.getAbsolutePath());
-//                    //上传图片
-//                    //NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH);
-//                    File dir = imageFile.getParentFile();
-//                    Lu.i("dir " +dir.getAbsolutePath());
-//                    if (dir.isDirectory()) {
-//
-//                        File[] files = dir.listFiles();
-//                        for (int i = 0; i < files.length; i++) {
-//                            Lu.i(files[i].getAbsolutePath());
-//                        }
-//
-//                    }
-//                    Toast.makeText(Camera03Activity.this, "网络可用,图片上传", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    Toast.makeText(Camera03Activity.this, "网络不可用，图片无法上传", Toast.LENGTH_SHORT).show();
-//                }
-//        }
+        //压缩图片
+        File file = new File(getExternalFilesDir(""), imageFile.getName());
+        File compressFile = null;
+        if (file.exists()) {
+            Lu.i("图片存在--进行压缩");
+            Bitmap bmp = FileUtils.getBmp(file);
+            compressFile = new File(getExternalFilesDir(""), "C_" + imageFile.getName());
+            FileUtils.compressBmpToFile(bmp, compressFile);
+        }
+        if (compressFile != null && compressFile.exists()) {
+            ImageInfoDao dao = new ImageInfoDao(this);
+            //上传图片信息
+            ImageInfo imageInfo = new ImageInfo();
+            imageInfo.setFileName(compressFile.getName());
+            imageInfo.setDate(DateUtils.getDateStr("yyyy-MM-dd HH:mm:ss"));
+            comments = et_comments.getText().toString();
+            imageInfo.setComments(comments);
+            type = sp.getSelectedItem().toString();
+            imageInfo.setType(type);
+            imageInfo.setUserName("宋石磊");
+            Lu.i(imageInfo.toString());
+            dao.add(imageInfo);
+        }
     }
-
-
 }
