@@ -41,15 +41,15 @@
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
-        <!--频繁的广播需要动态注册-->
-        <!--<receiver android:name=".app04.receiver.ScreenReceiver">-->
-        <!--<intent-filter>-->
-        <!--<action android:name="android.intent.action.SCREEN_OFF"></action>-->
-        <!--<action android:name="android.intent.action.SCREEN_ON"></action>-->
-        <!--</intent-filter>-->
-        <!--</receiver>-->
+        <!-- 频繁的广播需要动态注册 -->
+        <!-- <receiver android:name=".app04.receiver.ScreenReceiver"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.SCREEN_OFF"></action> -->
+        <!-- <action android:name="android.intent.action.SCREEN_ON"></action> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
 
-        <service android:name=".app02.service.SMSService"></service>
+        <service android:name=".app02.service.SMSService" />
 
         <activity android:name=".app02.activity.Sms02Activity" />
         <activity android:name=".app09.activity.Test09Activity" />
@@ -57,7 +57,13 @@
         <activity android:name=".app05.activity.Login05Activity" />
         <activity android:name=".app03.activity.Camera03Activity" />
         <activity android:name=".app03.activity.Camera03FileListActivity" />
-        <activity android:name=".app04.activity.Screen04Activity"></activity>
+        <activity android:name=".app04.activity.Screen04Activity" />
+
+        <provider
+            android:name=".app09.contentprovider.SmsContentProvider"
+            android:authorities="com.linson.xtools"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>

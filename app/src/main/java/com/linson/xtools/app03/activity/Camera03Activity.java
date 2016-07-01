@@ -11,7 +11,9 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.linson.xtools.R;
@@ -36,6 +38,7 @@ public class Camera03Activity extends AppCompatActivity {
     private Button btn_fileList;
     private Button btn_clearFile;
     private Button btn_uploadFiles;
+    private Spinner sp;
     private int cameraRequestCode = 100;
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -68,7 +71,6 @@ public class Camera03Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera03);
         init();
-
     }
 
     private void init() {
@@ -78,6 +80,7 @@ public class Camera03Activity extends AppCompatActivity {
         btn_fileList = (Button) findViewById(R.id.btn_fileList);
         btn_clearFile = (Button) findViewById(R.id.btn_clearFile);
         btn_uploadFiles = (Button) findViewById(R.id.btn_uploadFiles);
+        sp = (Spinner) findViewById(R.id.sp);
 
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,15 +136,21 @@ public class Camera03Activity extends AppCompatActivity {
                                 public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
                                     Lu.i("文件上传失败");
                                 }
+
+                                @Override
+                                public void onProgress(long bytesWritten, long totalSize) {
+                                    super.onProgress(bytesWritten, totalSize);
+                                }
                             });
                         }
                     }
-                    Toast.makeText(Camera03Activity.this, num + "个文件已上传", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Camera03Activity.this, num + "个文件已上传", Toast.LENGTH_LONG).show();
                 }
             }
         });
-
-
+        String[] mItems = new String[]{"请选择类别", "中兴SDH相关", "华为SDH相关", "电源及UPS相关"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, mItems);
+        sp.setAdapter(adapter);
     }
 
     public void openCamera(File imageFile, int cameraRequestCode) {

@@ -104,13 +104,11 @@ public class NetUtils {
                 public void onSuccess(int statusCode, Header[] headers,
                                       byte[] responseBody) {
                 }
-
                 // 上传失败时回调的方法
                 @Override
                 public void onFailure(int statusCode, Header[] headers,
                                       byte[] responseBody, Throwable error) {
                 }
-
             });
         } else {
             Lu.i("文件不存在，无法上传");
