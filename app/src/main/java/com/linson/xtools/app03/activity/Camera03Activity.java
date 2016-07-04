@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.linson.xtools.R;
 import com.linson.xtools.app03.dao.ImageInfoDao;
 import com.linson.xtools.app03.domain.ImageInfo;
@@ -47,6 +48,7 @@ public class Camera03Activity extends AppCompatActivity {
 
     private String type;
     private String comments;
+    private List<ImageInfo> imageInfoList = new ArrayList<ImageInfo>();
 
     public static void verifyStoragePermissions(Activity activity) {
         List permissionList = new ArrayList();
@@ -139,10 +141,10 @@ public class Camera03Activity extends AppCompatActivity {
             public void onClick(View v) {
                 if (fileDir != null && fileDir.isDirectory()) {
                     final File[] files = fileDir.listFiles();
-
                     final ImageInfoDao dao = new ImageInfoDao(Camera03Activity.this);
                     List<ImageInfo> imageLists = dao.findAll();
                     int num = imageLists.size();
+                    Lu.i("数据库读取上传文件的个数：" + num);
                     for (int i = 0; i < num; i++) {
                         final ImageInfo imageInfo = imageLists.get(i);
                         final File file = new File(fileDir, imageInfo.getFileName());
@@ -155,14 +157,16 @@ public class Camera03Activity extends AppCompatActivity {
                             NetUtils.uploadByAsyncHttpClient(file, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int i, Header[] headers, byte[] bytes) {
-                                    Lu.i("文件上传成功");
+                                    Lu.i("全部文件上传成功");
                                     file.delete();
+                                    //本机数据库删除记录
                                     dao.delete(imageInfo.getId());
+                                    //Lu.i(file.getName()+"+");
                                 }
 
                                 @Override
                                 public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
-                                    Lu.i("文件上传失败");
+                                    Lu.i("全部文件上传失败");
                                 }
 
                                 @Override
@@ -172,6 +176,12 @@ public class Camera03Activity extends AppCompatActivity {
                             });
                         }
                     }
+                    //上传信息到服务器
+                    Gson gson = new Gson();
+                    String data = gson.toJson(imageInfoList);
+                    NetUtils.sendJson(data, Constant.IMAGE_INFO_PATH, "datas");
+                    //清除缓存
+                    imageInfoList.clear();
                     Toast.makeText(Camera03Activity.this, num + "个文件已上传", Toast.LENGTH_LONG).show();
                 }
             }
@@ -217,6 +227,7 @@ public class Camera03Activity extends AppCompatActivity {
             imageInfo.setUserName("宋石磊");
             Lu.i(imageInfo.toString());
             dao.add(imageInfo);
+            imageInfoList.add(imageInfo);
         }
     }
 }

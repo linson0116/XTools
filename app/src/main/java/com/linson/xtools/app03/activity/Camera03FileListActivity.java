@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.linson.xtools.R;
 import com.linson.xtools.app03.dao.ImageInfoDao;
 import com.linson.xtools.app03.domain.ImageInfo;
@@ -28,12 +29,10 @@ import java.util.List;
 
 public class Camera03FileListActivity extends AppCompatActivity {
     File[] files = null;
-    //List<String> dataList = null;
     List<ImageInfo> imageList = null;
     BaseAdapter adapter = new FileListAdapter();
     String tv_FileName = "";
     private ListView lv_cameraFileList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,19 +42,9 @@ public class Camera03FileListActivity extends AppCompatActivity {
     }
 
     private void init() {
-//        File fileDir = getExternalFilesDir("");
-//        if (fileDir.isDirectory()) {
-//            files = fileDir.listFiles();
-//            dataList = new ArrayList<String>();
-//            for (int i = 0; i < files.length; i++) {
-//                dataList.add(files[i].getName());
-//            }
-//        }
         ImageInfoDao dao = new ImageInfoDao(this);
         imageList = dao.findAll();
-
         lv_cameraFileList = (ListView) findViewById(R.id.lv_cameraFileList);
-        //ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, data);
         lv_cameraFileList.setAdapter(adapter);
     }
 
@@ -123,6 +112,11 @@ public class Camera03FileListActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(int i, Header[] headers, byte[] bytes) {
                                     Lu.i("文件上传成功");
+                                    //上传imageinfo
+                                    Gson gson = new Gson();
+                                    String data = gson.toJson(imageInfo);
+                                    NetUtils.sendJson(data, Constant.IMAGE_INFO_PATH);
+                                    //删除文件
                                     if (file.exists()) {
                                         file.delete();
                                         dao.delete(uploadImageInfo.getId());

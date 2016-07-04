@@ -42,14 +42,36 @@ public class NetUtils {
                 , new RequestCallBack<String>() {
                     @Override
                     public void onSuccess(ResponseInfo<String> responseInfo) {
-                        Log.i("log", "onSuccess " + responseInfo.result.toString());
+                        Log.i("log", "sendJson onSuccess " + responseInfo.result.toString());
                     }
 
                     @Override
                     public void onFailure(HttpException e, String s) {
-                        Log.i("log", "onFailure " + s + " e=" + e.getMessage());
-                        Log.i("log", "onFailure " + s + " data=" + data);
-                        Log.i("log", "onFailure " + s + " path=" + path);
+                        Log.i("log", "sendJson onFailure " + s + " e=" + e.getMessage());
+                        Log.i("log", "sendJson onFailure " + s + " data=" + data);
+                        Log.i("log", "sendJson onFailure " + s + " path=" + path);
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    public static void sendJson(final String data, final String path, String myParams) {
+        HttpUtils httpUtils = new HttpUtils();
+        RequestParams params = new RequestParams();
+        params.addBodyParameter(myParams, data);
+        //Lu.i(params.getCharset());
+        httpUtils.send(HttpRequest.HttpMethod.POST, path, params
+                , new RequestCallBack<String>() {
+                    @Override
+                    public void onSuccess(ResponseInfo<String> responseInfo) {
+                        Log.i("log", "sendJson onSuccess " + responseInfo.result.toString());
+                    }
+
+                    @Override
+                    public void onFailure(HttpException e, String s) {
+                        Log.i("log", "sendJson onFailure " + s + " e=" + e.getMessage());
+                        Log.i("log", "sendJson onFailure " + s + " data=" + data);
+                        Log.i("log", "sendJson onFailure " + s + " path=" + path);
                         e.printStackTrace();
                     }
                 });
