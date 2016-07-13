@@ -3,6 +3,7 @@ package com.linson.xtools.app03.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -42,13 +44,15 @@ public class Camera03Activity extends AppCompatActivity {
     private Button btn_fileList;
     private Button btn_clearFile;
     private Button btn_uploadFiles;
+    private Button btn_compressRate;
     private EditText et_comments;
+    private EditText et_compressRate;
     private Spinner sp;
     private int cameraRequestCode = 100;
 
     private String type;
     private String comments;
-    private List<ImageInfo> imageInfoList = new ArrayList<ImageInfo>();
+    //private List<ImageInfo> imageInfoList = new ArrayList<ImageInfo>();
 
     public static void verifyStoragePermissions(Activity activity) {
         List permissionList = new ArrayList();
@@ -91,7 +95,7 @@ public class Camera03Activity extends AppCompatActivity {
         btn_uploadFiles = (Button) findViewById(R.id.btn_uploadFiles);
         sp = (Spinner) findViewById(R.id.sp);
         et_comments = (EditText) findViewById(R.id.et_comments);
-
+        et_compressRate = (EditText) findViewById(R.id.et_compressRate);
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,28 +144,28 @@ public class Camera03Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (fileDir != null && fileDir.isDirectory()) {
-                    final File[] files = fileDir.listFiles();
+                    //final File[] files = fileDir.listFiles();
                     final ImageInfoDao dao = new ImageInfoDao(Camera03Activity.this);
                     List<ImageInfo> imageLists = dao.findAll();
                     int num = imageLists.size();
                     Lu.i("数据库读取上传文件的个数：" + num);
                     for (int i = 0; i < num; i++) {
                         final ImageInfo imageInfo = imageLists.get(i);
-                        final File file = new File(fileDir, imageInfo.getFileName());
-                        if (file.exists()) {
-//                            Bitmap bmp = FileUtils.getBmp(files[i]);
-//                            final File compressFile = new File(fileDir, "C_" + files[i].getName());
-//                            FileUtils.compressBmpToFile(bmp, compressFile);
+                        final File phoneFile = new File(fileDir, imageInfo.getFileName());
+                        if (phoneFile.exists()) {
+                            Bitmap bmp = FileUtils.getBmp(phoneFile);
+                            final File compressFile = new File(fileDir, phoneFile.getName());
+                            FileUtils.compressBmpToFile(bmp, compressFile, Camera03Activity.this);
 //                            files[i].delete();
                             //上传图片
-                            NetUtils.uploadByAsyncHttpClient(file, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
+                            NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int i, Header[] headers, byte[] bytes) {
-                                    Lu.i("全部文件上传成功");
-                                    file.delete();
+                                    Lu.i(compressFile.getName() + " 上传成功");
+                                    //手机文件删除
+                                    phoneFile.delete();
                                     //本机数据库删除记录
                                     dao.delete(imageInfo.getId());
-                                    //Lu.i(file.getName()+"+");
                                 }
 
                                 @Override
@@ -178,12 +182,26 @@ public class Camera03Activity extends AppCompatActivity {
                     }
                     //上传信息到服务器
                     Gson gson = new Gson();
-                    String data = gson.toJson(imageInfoList);
-                    NetUtils.sendJson(data, Constant.IMAGE_INFO_PATH, "datas");
+                    String datas = gson.toJson(imageLists);
+                    Lu.i(datas);
+                    NetUtils.sendJson(datas, Constant.IMAGE_INFO_PATH, "datas");
                     //清除缓存
-                    imageInfoList.clear();
+                    imageLists.clear();
                     Toast.makeText(Camera03Activity.this, num + "个文件已上传", Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        btn_compressRate = (Button) findViewById(R.id.btn_compressRate);
+        btn_compressRate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int fileSize = Integer.parseInt(et_compressRate.getText().toString());
+                SharedPreferences spf = getSharedPreferences("xtools", MODE_PRIVATE);
+                SharedPreferences.Editor editor = spf.edit();
+                editor.putInt("fileSize", fileSize * 1000);
+                editor.commit();
+                Toast.makeText(Camera03Activity.this, "" + fileSize, Toast.LENGTH_SHORT).show();
             }
         });
         String[] mItems = new String[]{"请选择类别", "中兴SDH相关", "华为SDH相关", "电源及UPS相关", "文化共享", "其他"};
@@ -205,6 +223,28 @@ public class Camera03Activity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //压缩图片改在上传前
+
+        ImageInfoDao dao = new ImageInfoDao(this);
+        //本机数据库登入图片信息
+        ImageInfo imageInfo = new ImageInfo();
+        imageInfo.setFileName(imageFile.getName());
+        imageInfo.setDate(DateUtils.getDateStr("yyyy-MM-dd HH:mm:ss"));
+        comments = et_comments.getText().toString();
+        if (TextUtils.isEmpty(comments)) {
+            imageInfo.setComments("正常");
+        } else {
+            imageInfo.setComments(comments);
+        }
+        type = sp.getSelectedItem().toString();
+        imageInfo.setType(type);
+        imageInfo.setUserName("宋石磊");
+        Lu.i(imageInfo.toString());
+        dao.add(imageInfo);
+
+        /*
+
+
         //压缩图片
         File file = new File(getExternalFilesDir(""), imageFile.getName());
         File compressFile = null;
@@ -216,18 +256,24 @@ public class Camera03Activity extends AppCompatActivity {
         }
         if (compressFile != null && compressFile.exists()) {
             ImageInfoDao dao = new ImageInfoDao(this);
-            //上传图片信息
+            //本机数据库登入图片信息
             ImageInfo imageInfo = new ImageInfo();
             imageInfo.setFileName(compressFile.getName());
             imageInfo.setDate(DateUtils.getDateStr("yyyy-MM-dd HH:mm:ss"));
             comments = et_comments.getText().toString();
-            imageInfo.setComments(comments);
+            if (TextUtils.isEmpty(comments)) {
+                imageInfo.setComments("正常");
+            } else {
+                imageInfo.setComments(comments);
+            }
             type = sp.getSelectedItem().toString();
             imageInfo.setType(type);
             imageInfo.setUserName("宋石磊");
             Lu.i(imageInfo.toString());
             dao.add(imageInfo);
-            imageInfoList.add(imageInfo);
-        }
+            //imageInfoList.add(imageInfo);
+
+            */
+
     }
 }

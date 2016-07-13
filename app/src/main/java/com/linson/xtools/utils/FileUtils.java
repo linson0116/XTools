@@ -1,5 +1,7 @@
 package com.linson.xtools.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -100,12 +102,40 @@ public class FileUtils {
 
     public static void compressBmpToFile(Bitmap bmp, File file) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int options = 80;//个人喜欢从80开始,
+        int options = 80;//压缩比率
         bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
         while (baos.toByteArray().length / 1024 > 500) {
             baos.reset();
             //options -= 10;
             options = (int) (options * 0.8);
+            bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
+            if (options <= 9) {
+                break;
+            }
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(baos.toByteArray());
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void compressBmpToFile(Bitmap bmp, File file, Context context) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int options = 90;//压缩比率
+        bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
+
+        SharedPreferences spf = context.getSharedPreferences("xtools", context.MODE_PRIVATE);
+        int fileSize = spf.getInt("fileSize", 2000);
+        Lu.i("fileSize:" + fileSize);
+
+        while (baos.toByteArray().length / 1024 > fileSize) {
+            baos.reset();
+            //options -= 10;
+            options = (int) (options * 0.9);
             bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
             if (options <= 9) {
                 break;
