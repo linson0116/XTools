@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.linson.xtools.R;
 import com.linson.xtools.utils.FileUtils;
 import com.linson.xtools.utils.Lu;
+import com.linson.xtools.utils.NetUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,6 +20,7 @@ public class Test09Activity extends AppCompatActivity {
     private Button btn_t1;
     private Button btn_t2;
     private Button btn_t3;
+    private Button btn_t4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +29,7 @@ public class Test09Activity extends AppCompatActivity {
         btn_t1 = (Button) findViewById(R.id.btn_t1);
         btn_t2 = (Button) findViewById(R.id.btn_t2);
         btn_t3 = (Button) findViewById(R.id.btn_t3);
+        btn_t4 = (Button) findViewById(R.id.btn_t4);
         btn_t1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +60,18 @@ public class Test09Activity extends AppCompatActivity {
                 ContentResolver resolver = getContentResolver();
                 Uri uri = Uri.parse("content://com.linson.xtools/insert");
                 resolver.insert(uri, null);
+            }
+        });
+        btn_t4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //判断网络联机
+                Boolean netFlag = NetUtils.isNetworkAvailable(getApplicationContext());
+                if (netFlag) {
+                    Toast.makeText(Test09Activity.this, "ok", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(Test09Activity.this, "no", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

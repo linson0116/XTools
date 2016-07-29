@@ -9,22 +9,25 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.linson.xtools.app09.activity.Test09Activity">
-
     <Button
         android:id="@+id/btn_t1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="文件日志测试" />
-
     <Button
         android:id="@+id/btn_t2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="网络日志测试" />
-
     <Button
         android:id="@+id/btn_t3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="内容提供者" />
+
+    <Button
+        android:id="@+id/btn_t4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="网络连接测试" />
 </LinearLayout>

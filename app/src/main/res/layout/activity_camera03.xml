@@ -58,6 +58,34 @@
         android:layout_height="wrap_content"
         android:text="清空文件" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
+
+        <Switch
+            android:id="@+id/sw_local"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="本地上传" />
+
+        <Space
+            android:layout_width="40dp"
+            android:layout_height="wrap_content" />
+
+        <Switch
+            android:id="@+id/sw_cloud"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="false"
+            android:text="云端上传" />
+
+    </LinearLayout>
     <Button
         android:id="@+id/btn_uploadFiles"
         android:layout_width="match_parent"
@@ -69,19 +97,19 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/et_compressRate"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="2"
-            android:textSize="22dp" />
+        <!--<EditText-->
+        <!--android:id="@+id/et_compressRate"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:text="2"-->
+        <!--android:textSize="22dp" />-->
 
-        <Button
-            android:id="@+id/btn_compressRate"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="压缩比率" />
+        <!--<Button-->
+        <!--android:id="@+id/btn_compressRate"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:text="压缩比率" />-->
     </LinearLayout>
 </LinearLayout>

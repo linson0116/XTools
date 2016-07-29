@@ -127,11 +127,40 @@ public class FileUtils {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int options = 90;//压缩比率
         bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
-
         SharedPreferences spf = context.getSharedPreferences("xtools", context.MODE_PRIVATE);
         int fileSize = spf.getInt("fileSize", 2000);
         Lu.i("fileSize:" + fileSize);
+        while (baos.toByteArray().length / 1024 > fileSize) {
+            baos.reset();
+            //options -= 10;
+            options = (int) (options * 0.9);
+            bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
+            if (options <= 9) {
+                break;
+            }
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(baos.toByteArray());
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public static void compressBmpToFile(Bitmap bmp, File file, Context context, String server) {
+        int options = 0;//初始压缩比率
+        int fileSize = 0;//压缩文件上限大小
+        if (server.equals(Constant.SERVER_STATUS_CLOUD)) {
+            options = 90;
+            fileSize = 600;
+        } else if (server.equals(Constant.SERVER_STATUS_LOCAL)) {
+            options = 90;
+            fileSize = 2000;
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, options, baos);
         while (baos.toByteArray().length / 1024 > fileSize) {
             baos.reset();
             //options -= 10;

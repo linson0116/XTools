@@ -15,8 +15,10 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -44,15 +46,18 @@ public class Camera03Activity extends AppCompatActivity {
     private Button btn_fileList;
     private Button btn_clearFile;
     private Button btn_uploadFiles;
-    private Button btn_compressRate;
+    //    private Button btn_compressRate;
     private EditText et_comments;
-    private EditText et_compressRate;
+    //    private EditText et_compressRate;
     private Spinner sp;
-    private int cameraRequestCode = 100;
+    private Switch sw_local;
+    private Switch sw_cloud;
+    //private int cameraRequestCode = 100;
 
-    private String type;
-    private String comments;
-    //private List<ImageInfo> imageInfoList = new ArrayList<ImageInfo>();
+//    private String type;
+//    private String comments;
+
+    private String[] mItems = new String[]{"请选择类别", "中兴SDH相关", "华为SDH相关", "电源及UPS相关", "文化共享", "其他"};
 
     public static void verifyStoragePermissions(Activity activity) {
         List permissionList = new ArrayList();
@@ -95,14 +100,15 @@ public class Camera03Activity extends AppCompatActivity {
         btn_uploadFiles = (Button) findViewById(R.id.btn_uploadFiles);
         sp = (Spinner) findViewById(R.id.sp);
         et_comments = (EditText) findViewById(R.id.et_comments);
-        et_compressRate = (EditText) findViewById(R.id.et_compressRate);
+//        et_compressRate = (EditText) findViewById(R.id.et_compressRate);
+//        btn_compressRate = (Button) findViewById(R.id.btn_compressRate);
         btn_camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String fileName = DateUtils.getDateStr("yyMMdd_HHmmss") + ".jpg";
                 ///storage/emulated/0/Android/data/com.linson.xtools/files/
                 imageFile = new File(fileDir, fileName);
-                openCamera(imageFile, cameraRequestCode);
+                openCamera(imageFile, Constant.CAMERA_REQUEST_CODE);
             }
         });
         btn_fileList.setOnClickListener(new View.OnClickListener() {
@@ -126,16 +132,11 @@ public class Camera03Activity extends AppCompatActivity {
                         File file = new File(fileDir, fileName);
                         if (file.exists()) {
                             file.delete();
-                            dao.delete(imageInfo.getId());
-                            deleteNum++;
                         }
+                        dao.delete(imageInfo.getId());
+//                        Lu.i(imageInfo.getId()+"");
+                        deleteNum++;
                     }
-                    /*File[] files = fileDir.listFiles();
-                    for (int i = 0; i < files.length; i++) {
-                        if (files[i].exists()) {
-                            files[i].delete();
-                        }
-                    }*/
                     Toast.makeText(Camera03Activity.this, "清空了" + deleteNum + "个文件", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -143,11 +144,46 @@ public class Camera03Activity extends AppCompatActivity {
         btn_uploadFiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //判断网络联机
+                Boolean netFlag = NetUtils.isNetworkAvailable(getApplicationContext());
+                if (netFlag) {
+                } else {
+                    Toast.makeText(Camera03Activity.this, "无法连接到服务器，请检查网络设置", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                //判断上传本地和云端
+                boolean flag_local;
+                boolean flag_cloud;
+                if (sw_local.isChecked()) {
+                    flag_local = true;
+                } else {
+                    flag_local = false;
+                }
+                if (sw_cloud.isChecked()) {
+                    flag_cloud = true;
+                } else {
+                    flag_cloud = false;
+                }
+                String UPLOADFILE_PATH;
+                final String IMAGE_INFO_PATH;
+                //设置服务器状态
+                SharedPreferences spf = getSharedPreferences("xtools", MODE_PRIVATE);
+                SharedPreferences.Editor editor = spf.edit();
+                if (flag_cloud) {
+                    UPLOADFILE_PATH = Constant.UPLOADFILE_PATH_CLOUD;
+                    IMAGE_INFO_PATH = Constant.IMAGE_INFO_PATH_CLOUD;
+                    editor.putString("SERVER_STATUS", Constant.SERVER_STATUS_CLOUD);
+                } else {
+                    UPLOADFILE_PATH = Constant.UPLOADFILE_PATH_LOCAL;
+                    IMAGE_INFO_PATH = Constant.IMAGE_INFO_PATH_LOCAL;
+                    editor.putString("SERVER_STATUS", Constant.SERVER_STATUS_LOCAL);
+                }
+                editor.commit();
+
                 if (fileDir != null && fileDir.isDirectory()) {
-                    //final File[] files = fileDir.listFiles();
                     final ImageInfoDao dao = new ImageInfoDao(Camera03Activity.this);
                     List<ImageInfo> imageLists = dao.findAll();
-                    int num = imageLists.size();
+                    final int num = imageLists.size();
                     Lu.i("数据库读取上传文件的个数：" + num);
                     for (int i = 0; i < num; i++) {
                         final ImageInfo imageInfo = imageLists.get(i);
@@ -155,10 +191,11 @@ public class Camera03Activity extends AppCompatActivity {
                         if (phoneFile.exists()) {
                             Bitmap bmp = FileUtils.getBmp(phoneFile);
                             final File compressFile = new File(fileDir, phoneFile.getName());
-                            FileUtils.compressBmpToFile(bmp, compressFile, Camera03Activity.this);
-//                            files[i].delete();
+                            //判断服务器状态，设置合适压缩率
+                            String server_status = spf.getString("SERVER_STATUS", Constant.SERVER_STATUS_CLOUD);
+                            FileUtils.compressBmpToFile(bmp, compressFile, Camera03Activity.this, server_status);
                             //上传图片
-                            NetUtils.uploadByAsyncHttpClient(compressFile, Constant.UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
+                            NetUtils.uploadByAsyncHttpClient(compressFile, UPLOADFILE_PATH, new AsyncHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int i, Header[] headers, byte[] bytes) {
                                     Lu.i(compressFile.getName() + " 上传成功");
@@ -166,13 +203,23 @@ public class Camera03Activity extends AppCompatActivity {
                                     phoneFile.delete();
                                     //本机数据库删除记录
                                     dao.delete(imageInfo.getId());
+                                    //上传信息到服务器
+                                    Gson gson = new Gson();
+                                    String data = gson.toJson(imageInfo);
+                                    Lu.i(data);
+                                    NetUtils.sendJson(data, IMAGE_INFO_PATH, "data");
                                 }
-
                                 @Override
                                 public void onFailure(int i, Header[] headers, byte[] bytes, Throwable throwable) {
-                                    Lu.i("全部文件上传失败");
+                                    StringBuffer sb = new StringBuffer();
+                                    Header header = null;
+                                    for (int j = 0; j < headers.length; j++) {
+                                        header = headers[j];
+                                        String str = header.getName() + ":" + header.getValue() + " ";
+                                        sb.append(str);
+                                    }
+                                    Lu.i("文件上传失败 " + sb.toString());
                                 }
-
                                 @Override
                                 public void onProgress(long bytesWritten, long totalSize) {
                                     super.onProgress(bytesWritten, totalSize);
@@ -180,31 +227,52 @@ public class Camera03Activity extends AppCompatActivity {
                             });
                         }
                     }
-                    //上传信息到服务器
-                    Gson gson = new Gson();
-                    String datas = gson.toJson(imageLists);
-                    Lu.i(datas);
-                    NetUtils.sendJson(datas, Constant.IMAGE_INFO_PATH, "datas");
-                    //清除缓存
-                    imageLists.clear();
+//                    //上传信息到服务器
+//                    Gson gson = new Gson();
+//                    String datas = gson.toJson(imageLists);
+//                    Lu.i(datas);
+//                    NetUtils.sendJson(datas, Constant.IMAGE_INFO_PATH, "datas");
+//                    //清除缓存
+//                    //imageLists.clear();
                     Toast.makeText(Camera03Activity.this, num + "个文件已上传", Toast.LENGTH_LONG).show();
                 }
             }
         });
 
-        btn_compressRate = (Button) findViewById(R.id.btn_compressRate);
-        btn_compressRate.setOnClickListener(new View.OnClickListener() {
+
+//        btn_compressRate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int fileSize = Integer.parseInt(et_compressRate.getText().toString());
+//                SharedPreferences spf = getSharedPreferences("xtools", MODE_PRIVATE);
+//                SharedPreferences.Editor editor = spf.edit();
+//                editor.putInt("fileSize", fileSize * 1000);
+//                editor.commit();
+//                Toast.makeText(Camera03Activity.this, "" + fileSize, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+        sw_local = (Switch) findViewById(R.id.sw_local);
+        sw_cloud = (Switch) findViewById(R.id.sw_cloud);
+        sw_local.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                int fileSize = Integer.parseInt(et_compressRate.getText().toString());
-                SharedPreferences spf = getSharedPreferences("xtools", MODE_PRIVATE);
-                SharedPreferences.Editor editor = spf.edit();
-                editor.putInt("fileSize", fileSize * 1000);
-                editor.commit();
-                Toast.makeText(Camera03Activity.this, "" + fileSize, Toast.LENGTH_SHORT).show();
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sw_cloud.setChecked(false);
+                } else {
+                    sw_cloud.setChecked(true);
+                }
             }
         });
-        String[] mItems = new String[]{"请选择类别", "中兴SDH相关", "华为SDH相关", "电源及UPS相关", "文化共享", "其他"};
+        sw_cloud.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    sw_local.setChecked(false);
+                } else {
+                    sw_local.setChecked(true);
+                }
+            }
+        });
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, mItems);
         sp.setAdapter(adapter);
     }
@@ -216,64 +284,26 @@ public class Camera03Activity extends AppCompatActivity {
 
         Uri fileUri = Uri.fromFile(imageFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-//        intent.putExtra("fileName", imageFile.getName());
-//        Log.i("log", "openCamera: "+imageFile.getName());
         startActivityForResult(intent, cameraRequestCode);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //压缩图片改在上传前
-
         ImageInfoDao dao = new ImageInfoDao(this);
         //本机数据库登入图片信息
         ImageInfo imageInfo = new ImageInfo();
         imageInfo.setFileName(imageFile.getName());
         imageInfo.setDate(DateUtils.getDateStr("yyyy-MM-dd HH:mm:ss"));
-        comments = et_comments.getText().toString();
+        String comments = et_comments.getText().toString();
         if (TextUtils.isEmpty(comments)) {
             imageInfo.setComments("正常");
         } else {
             imageInfo.setComments(comments);
         }
-        type = sp.getSelectedItem().toString();
+        String type = sp.getSelectedItem().toString();
         imageInfo.setType(type);
         imageInfo.setUserName("宋石磊");
         Lu.i(imageInfo.toString());
         dao.add(imageInfo);
-
-        /*
-
-
-        //压缩图片
-        File file = new File(getExternalFilesDir(""), imageFile.getName());
-        File compressFile = null;
-        if (file.exists()) {
-            Lu.i("图片存在--进行压缩");
-            Bitmap bmp = FileUtils.getBmp(file);
-            compressFile = new File(getExternalFilesDir(""), "C_" + imageFile.getName());
-            FileUtils.compressBmpToFile(bmp, compressFile);
-        }
-        if (compressFile != null && compressFile.exists()) {
-            ImageInfoDao dao = new ImageInfoDao(this);
-            //本机数据库登入图片信息
-            ImageInfo imageInfo = new ImageInfo();
-            imageInfo.setFileName(compressFile.getName());
-            imageInfo.setDate(DateUtils.getDateStr("yyyy-MM-dd HH:mm:ss"));
-            comments = et_comments.getText().toString();
-            if (TextUtils.isEmpty(comments)) {
-                imageInfo.setComments("正常");
-            } else {
-                imageInfo.setComments(comments);
-            }
-            type = sp.getSelectedItem().toString();
-            imageInfo.setType(type);
-            imageInfo.setUserName("宋石磊");
-            Lu.i(imageInfo.toString());
-            dao.add(imageInfo);
-            //imageInfoList.add(imageInfo);
-
-            */
-
     }
 }

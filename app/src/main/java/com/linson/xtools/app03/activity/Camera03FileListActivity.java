@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.List;
 
 public class Camera03FileListActivity extends AppCompatActivity {
-    File[] files = null;
+    //File[] files = null;
     List<ImageInfo> imageList = null;
     BaseAdapter adapter = new FileListAdapter();
     String tv_FileName = "";
@@ -39,6 +39,7 @@ public class Camera03FileListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera03_file_list);
         init();
+
     }
 
     private void init() {
@@ -46,6 +47,7 @@ public class Camera03FileListActivity extends AppCompatActivity {
         imageList = dao.findAll();
         lv_cameraFileList = (ListView) findViewById(R.id.lv_cameraFileList);
         lv_cameraFileList.setAdapter(adapter);
+        Lu.i(imageList.size() + "");
     }
 
     class FileListAdapter extends BaseAdapter {
