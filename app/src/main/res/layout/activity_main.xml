@@ -1,69 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:columnCount="3"
-    android:rowCount="3"
+    android:orientation="vertical"
     tools:context="com.linson.xtools.MainActivity">
 
-    <Button
-        android:id="@+id/btn_1"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1"
-        android:paddingLeft="0dp"
-        android:paddingRight="0dp"
-        android:text="短信 电话"
-        android:textSize="20sp"
-        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="150dp"
+        android:background="#53d9ea"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btn_2"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1"
-        android:text="短信记录"
-        android:textSize="20sp" />
+        <ImageView
+            android:id="@+id/iv_head"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/man_2" />
 
-    <Button
-        android:id="@+id/btn_3"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1"
-        android:text="拍照上传"
-        android:textSize="20sp" />
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_frame_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="15dp">
 
-    <Button
-        android:id="@+id/btn_4"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1"
-        android:text="屏幕开关"
-        android:textSize="20sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="天行健，君子以自强不息；地势坤，君子以厚德载物。"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </com.facebook.shimmer.ShimmerFrameLayout>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_5"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1"
-        android:text="登录"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/btn_6"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1" />
-
-    <Button
-        android:id="@+id/btn_7"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1" />
-
-    <Button
-        android:id="@+id/btn_8"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1" />
-    <Button
-        android:id="@+id/btn_9"
-        android:layout_columnWeight="1"
-        android:layout_rowWeight="1"
-        android:text="测试"
-        android:textSize="20sp" />
-
-</GridLayout>
+    <GridView
+        android:id="@+id/gv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="3"
+        android:paddingTop="16dp"></GridView>
+</LinearLayout>
