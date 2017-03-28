@@ -1,7 +1,6 @@
 package com.linson.xtools.app05.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -20,9 +19,10 @@ import com.linson.xtools.utils.Lu;
 import com.linson.xtools.utils.NetUtils;
 import com.linson.xtools.utils.ReturnMessage;
 import com.linson.xtools.utils.SendFlag;
+import com.linson.xtools.utils.SpUtils;
+import com.linson.xtools.utils.ToastUtils;
 
 public class Login05Activity extends AppCompatActivity {
-    public static String updateBtn_5 = "updateBtn_5";
     private Button btn_register;
     private Button btn_login;
     private CheckBox cb_save;
@@ -47,9 +47,7 @@ public class Login05Activity extends AppCompatActivity {
         et_password = (EditText) findViewById(R.id.et_password);
         btn_register = (Button) findViewById(R.id.btn_register);
         btn_login = (Button) findViewById(R.id.btn_login);
-        //
-        initRemember();
-        //
+
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,23 +58,10 @@ public class Login05Activity extends AppCompatActivity {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean flag = cb_save.isChecked();
-                SharedPreferences sp = getSharedPreferences("remember", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sp.edit();
+                final boolean login_status = cb_save.isChecked();
                 final String username = et_username.getText().toString();
-                String password = et_password.getText().toString();
-                if (flag) {
-                    //Toast.makeText(Login05Activity.this, "checked", Toast.LENGTH_SHORT).show();
-                    editor.putString("username", username);
-                    editor.putString("password", password);
-                    editor.putBoolean("cb_save", true);
-                } else {
-                    //Toast.makeText(Login05Activity.this, "unchecked", Toast.LENGTH_SHORT).show();
-                    editor.putString("username", "");
-                    editor.putString("password", "");
-                    editor.putBoolean("cb_save", false);
-                }
-                editor.commit();
+                final String password = et_password.getText().toString();
+
                 User user = new User();
                 user.setUsername(username);
                 user.setPassword(password);
@@ -91,39 +76,34 @@ public class Login05Activity extends AppCompatActivity {
                         String result = responseInfo.result.toString();
                         if (result.equals(ReturnMessage.LOGIN_OK)) {
                             Lu.i(ReturnMessage.LOGIN_OK);
-                            Intent intent = new Intent(updateBtn_5);
-                            sendBroadcast(intent);
                             finish();
+                            ToastUtils.show(Login05Activity.this, "登陆成功");
+                            //发送广播 刷新登录界面
+                            Intent intentReceiver = new Intent("refresh_user_info");
+                            intentReceiver.putExtra("username", username);
+                            sendBroadcast(intentReceiver);
+                            //设置登录信息
+                            if (login_status) {
+                                SpUtils.putString(Login05Activity.this, "username", username);
+                                SpUtils.putString(Login05Activity.this, "password", password);
+                                SpUtils.putBoolean(Login05Activity.this, "login_status", true);
+                            } else {
+                                SpUtils.putBoolean(Login05Activity.this, "login_status", false);
+                            }
                         } else if (result.equals(ReturnMessage.LOGIN_FALSE)) {
                             Lu.i(ReturnMessage.LOGIN_FALSE);
+                            ToastUtils.show(Login05Activity.this, "登陆失败，用户名和密码不正确");
+                            SpUtils.putBoolean(Login05Activity.this, "login_status", false);
                         }
                     }
 
                     @Override
                     public void onFailure(HttpException e, String s) {
                         Lu.i("login onFailure = " + s);
+                        ToastUtils.show(Login05Activity.this, "网络异常");
                     }
                 });
             }
         });
-
-    }
-
-    private void initRemember() {
-        SharedPreferences sp = getSharedPreferences("remember", MODE_PRIVATE);
-        Boolean cb_save_flag = sp.getBoolean("cb_save", false);
-        if (cb_save_flag) {
-            String username = sp.getString("username", "");
-            String password = sp.getString("password", "");
-            et_username.setText(username);
-            et_password.setText(password);
-            cb_save.setChecked(cb_save_flag);
-        } else {
-            String username = "";
-            String password = "";
-            et_username.setText(username);
-            et_password.setText(password);
-            cb_save.setChecked(cb_save_flag);
-        }
     }
 }
