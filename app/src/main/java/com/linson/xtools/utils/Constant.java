@@ -1,7 +1,7 @@
 package com.linson.xtools.utils;
 
 /**
- * Created by Administrator on 2016/5/23.
+ * Created by Administrator on  2016/5/23.
  */
 public class Constant {
     public static final String USER_PATH = "http://140.143.98.143:8080/XToolsServer/UserServlet";
